@@ -81,8 +81,8 @@ struct filter_sys_t
     int64_t i_last_activity;
 };
 
-#define VIS_ZOOM 4
-#define ZOOM_FACTOR 8
+#define VIS_ZOOM 1
+#define ZOOM_FACTOR 4
 
 /*****************************************************************************
  * Create:
@@ -207,67 +207,59 @@ static picture_t *Filter( filter_t *p_filter, picture_t *p_pic )
         picture_CopyPixels( p_outpic, p_pic );
     }
 
-    /* */
-    p_oyp = &p_outpic->p[Y_PLANE];
-    if( b_visible )
-    {
-        video_format_t fmt_out;
+    ///* */
+    //if( b_visible )
+    //{
+    //    video_format_t fmt_out;
+    //    /* image visualization */
+    //    fmt_out = p_filter->fmt_out.video;
+    //    fmt_out.i_width  = (fmt_out.i_width /VIS_ZOOM) & ~1;
+    //    fmt_out.i_height = (fmt_out.i_height/VIS_ZOOM) & ~1;
+    //    p_converted = image_Convert( p_sys->p_image, p_pic,
+    //                                 &p_pic->format, &fmt_out );
+    //    /* It will put only what can be copied at the top left */
+    //    /*picture_CopyPixels( p_outpic, p_converted );*/
 
-        /* image visualization */
-        fmt_out = p_filter->fmt_out.video;
-        fmt_out.i_width  = (fmt_out.i_width /VIS_ZOOM) & ~1;
-        fmt_out.i_height = (fmt_out.i_height/VIS_ZOOM) & ~1;
-        p_converted = image_Convert( p_sys->p_image, p_pic,
-                                     &p_pic->format, &fmt_out );
+    //    /*picture_Release( p_converted );*/
 
-        /* It will put only what can be copied at the top left */
-        picture_CopyPixels( p_outpic, p_converted );
+    //    /* white rectangle on visualization */
+    //    v_w = __MIN( fmt_out.i_width  * ZOOM_FACTOR / o_zoom, fmt_out.i_width - 1 );
+    //    v_h = __MIN( fmt_out.i_height * ZOOM_FACTOR / o_zoom, fmt_out.i_height - 1 );
 
-        picture_Release( p_converted );
-
-        /* white rectangle on visualization */
-        v_w = __MIN( fmt_out.i_width  * ZOOM_FACTOR / o_zoom, fmt_out.i_width - 1 );
-        v_h = __MIN( fmt_out.i_height * ZOOM_FACTOR / o_zoom, fmt_out.i_height - 1 );
-
-        DrawRectangle( p_oyp->p_pixels, p_oyp->i_pitch,
-                       p_oyp->i_pitch, p_oyp->i_lines,
-                       o_x/VIS_ZOOM, o_y/VIS_ZOOM,
-                       v_w, v_h );
-
-        /* */
-        v_h = fmt_out.i_height + 1;
-    }
-    else
-    {
-        v_h = 1;
-    }
-
-    /* print a small "VLC ZOOM" */
-
-    if( b_visible || p_sys->i_last_activity + p_sys->i_hide_timeout > mdate() )
-        DrawZoomStatus( p_oyp->p_pixels, p_oyp->i_pitch, p_oyp->i_pitch, p_oyp->i_lines,
-                        1, v_h, b_visible );
-
-    if( b_visible )
-    {
-        /* zoom gauge */
-        memset( p_oyp->p_pixels + (v_h+9)*p_oyp->i_pitch, 0xff, 41 );
-        for( int y = v_h + 10; y < v_h + 90; y++ )
-        {
-            int i_width = v_h + 90 - y;
-            i_width = i_width * i_width / 160;
-            if( (80 - y + v_h)*ZOOM_FACTOR/10 < o_zoom )
-            {
-                memset( p_oyp->p_pixels + y*p_oyp->i_pitch, 0xff, i_width );
-            }
-            else
-            {
-                p_oyp->p_pixels[y*p_oyp->i_pitch] = 0xff;
-                p_oyp->p_pixels[y*p_oyp->i_pitch + i_width - 1] = 0xff;
-            }
-        }
-    }
-
+    //    DrawRectangle( p_oyp->p_pixels, p_oyp->i_pitch,
+    //                   p_oyp->i_pitch, p_oyp->i_lines,
+    //                   o_x/VIS_ZOOM, o_y/VIS_ZOOM,
+    //                   v_w, v_h );
+    //    /* */
+    //    v_h = fmt_out.i_height + 1;
+    //}
+    //else
+    //{
+    //    v_h = 1;
+    //}
+    ///* print a small "VLC ZOOM" */
+    //if( b_visible || p_sys->i_last_activity + p_sys->i_hide_timeout > mdate() )
+    //    DrawZoomStatus( p_oyp->p_pixels, p_oyp->i_pitch, p_oyp->i_pitch, p_oyp->i_lines,
+    //                    1, v_h, b_visible );
+    //if( b_visible )
+    //{
+    //    /* zoom gauge */
+    //    memset( p_oyp->p_pixels + (v_h+9)*p_oyp->i_pitch, 0xff, 41 );
+    //    for( int y = v_h + 10; y < v_h + 90; y++ )
+    //    {
+    //        int i_width = v_h + 90 - y;
+    //        i_width = i_width * i_width / 160;
+    //        if( (80 - y + v_h)*ZOOM_FACTOR/10 < o_zoom )
+    //        {
+    //            memset( p_oyp->p_pixels + y*p_oyp->i_pitch, 0xff, i_width );
+    //        }
+    //        else
+    //        {
+    //            p_oyp->p_pixels[y*p_oyp->i_pitch] = 0xff;
+    //            p_oyp->p_pixels[y*p_oyp->i_pitch + i_width - 1] = 0xff;
+    //        }
+    //    }
+    //}
     return CopyInfoAndRelease( p_outpic, p_pic );
 }
 
@@ -281,11 +273,11 @@ static void DrawZoomStatus( uint8_t *pb_dst, int i_pitch, int i_width, int i_hei
         " X X  X     X        X    X   X X   X X   X   X   X   X   X   X X    L"
         "  X   XXXXX  XXXX   XXXXX  XXX   XXX  X   X   X   X XXXXX XXXX  XXXXXL";
     static const char *p_show = 
-        "X   X X      XXXX   XXXXX  XXX   XXX  XX XX    XXXX X   X  XXX  X   XL"
-        "X   X X     X          X  X   X X   X X X X   X     X   X X   X X   XL"
-        " X X  X     X         X   X   X X   X X   X    XXX  XXXXX X   X X X XL"
-        " X X  X     X        X    X   X X   X X   X       X X   X X   X X X XL"
-        "  X   XXXXX  XXXX   XXXXX  XXX   XXX  X   X   XXXX  X   X  XXX   X X L";
+        "XXXXX XXXXX X   X   XXXXX  XXX   XXX  XX XX    XXXX X   X  XXX  X   XL"
+        "  X   X     X  X       X  X   X X   X X X X   X     X   X X   X X   XL"
+        "  X   X     XXX       X   X   X X   X X   X    XXX  XXXXX X   X X X XL"
+        "  X   X     X  X     X    X   X X   X X   X       X X   X X   X X X XL"
+        "  X   XXXXX X   X   XXXXX  XXX   XXX  X   X   XXXX  X   X  XXX   X X L";
     const char *p_draw = b_visible ? p_hide : p_show;
     int i, y, x;
 
@@ -308,27 +300,27 @@ static void DrawZoomStatus( uint8_t *pb_dst, int i_pitch, int i_width, int i_hei
         }
     }
 }
-static void DrawRectangle( uint8_t *pb_dst, int i_pitch, int i_width, int i_height,
-                           int x, int y, int i_w, int i_h )
-{
-    int dy;
-
-    if( x + i_w > i_width || y + i_h > i_height )
-        return;
-
-    /* top line */
-    vlc_memset( &pb_dst[y * i_pitch + x], 0xff, i_w );
-
-    /* left and right */
-    for( dy = 1; dy < i_h-1; dy++ )
-    {
-        pb_dst[(y+dy) * i_pitch + x +     0] = 0xff;
-        pb_dst[(y+dy) * i_pitch + x + i_w-1] = 0xff;
-    }
-
-    /* bottom line */
-    vlc_memset( &pb_dst[(y+i_h-1) * i_pitch + x], 0xff, i_w );
-}
+//static void DrawRectangle( uint8_t *pb_dst, int i_pitch, int i_width, int i_height,
+//                           int x, int y, int i_w, int i_h )
+//{
+//    int dy;
+//
+//    if( x + i_w > i_width || y + i_h > i_height )
+//        return;
+//
+//    /* top line */
+//    vlc_memset( &pb_dst[y * i_pitch + x], 0xff, i_w );
+//
+//    /* left and right */
+//    for( dy = 1; dy < i_h-1; dy++ )
+//    {
+//        pb_dst[(y+dy) * i_pitch + x +     0] = 0xff;
+//        pb_dst[(y+dy) * i_pitch + x + i_w-1] = 0xff;
+//    }
+//
+//    /* bottom line */
+//    vlc_memset( &pb_dst[(y+i_h-1) * i_pitch + x], 0xff, i_w );
+//}
 
 static int Mouse( filter_t *p_filter, vlc_mouse_t *p_mouse, const vlc_mouse_t *p_old, const vlc_mouse_t *p_new )
 {
