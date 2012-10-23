@@ -1,0 +1,69 @@
+diff --git a/include/vlc/libvlc_media_player.h
+b/include/vlc/libvlc_media_player.h
+index a2b5748..266e23c 100644
+--- a/include/vlc/libvlc_media_player.h
++++ b/include/vlc/libvlc_media_player.h
+@@ -863,6 +863,16 @@ LIBVLC_API void
+libvlc_set_fullscreen( libvlc_media_player_t *p_mi, int b_fullsc
+ LIBVLC_API int libvlc_get_fullscreen( libvlc_media_player_t *p_mi );
+ 
+ /**
++ * Set (enable/disable) a video filter
++ *
++ * \param p_mi the media player
++ * \param psz_name the filter name
++ * \param b_add boolean for whether the filter is to enable or disable
++ */
++LIBVLC_API void libvlc_set_video_filter( libvlc_media_player_t *p_mi,
+const char *psz_name,
++                              bool b_add );
++
++/**
+  * Enable or disable key press events handling, according to the LibVLC
+hotkeys
+  * configuration. By default and for historical reasons, keyboard
+events are
+  * handled by the LibVLC video widget.
+diff --git a/lib/libvlc.sym b/lib/libvlc.sym
+index 6582a96..a52330b 100644
+--- a/lib/libvlc.sym
++++ b/lib/libvlc.sym
+@@ -171,6 +171,7 @@ libvlc_retain
+ libvlc_set_fullscreen
+ libvlc_set_log_verbosity
+ libvlc_set_user_agent
++libvlc_set_video_filter
+ libvlc_toggle_fullscreen
+ libvlc_toggle_teletext
+ libvlc_track_description_release
+diff --git a/lib/video.c b/lib/video.c
+index 6e1ea06..acc839b 100644
+--- a/lib/video.c
++++ b/lib/video.c
+@@ -126,6 +126,23 @@ void
+libvlc_toggle_fullscreen( libvlc_media_player_t *p_mi )
+     free (pp_vouts);
+ }
+ 
++void libvlc_set_video_filter( libvlc_media_player_t *p_mi, const char
+*psz_name,
++                              bool b_add )
++{
++    size_t n;
++    vout_thread_t **pp_vouts = GetVouts( p_mi, &n );
++    // Apply the filters to all the vouts
++
++    for (size_t i = 0; i < n; i++)
++    {
++        vout_thread_t *p_vout = pp_vouts[i];
++
++        vout_EnableFilter( p_vout, psz_name, b_add, false );
++        vlc_object_release( p_vout );
++    }
++    free (pp_vouts);
++}
++
+ void libvlc_video_set_key_input( libvlc_media_player_t *p_mi, unsigned
+on )
+ {
+     var_SetBool (p_mi, "keyboard-events", !!on);
