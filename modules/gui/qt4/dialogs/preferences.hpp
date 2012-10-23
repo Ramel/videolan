@@ -69,7 +69,8 @@ private:
     SearchLineEdit *tree_filter;
 
     QGroupBox *types;
-    QRadioButton *small,*all;
+    QRadioButton *small_rb;
+    QRadioButton *all;
 
     bool b_small;
 

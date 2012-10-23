@@ -57,7 +57,7 @@
 /*********************************************************************
  * The List of categories
  *********************************************************************/
-SPrefsCatList::SPrefsCatList( intf_thread_t *_p_intf, QWidget *_parent, bool small ) :
+SPrefsCatList::SPrefsCatList( intf_thread_t *_p_intf, QWidget *_parent, bool b_small ) :
                                   QWidget( _parent ), p_intf( _p_intf )
 {
     QVBoxLayout *layout = new QVBoxLayout();
@@ -67,7 +67,7 @@ SPrefsCatList::SPrefsCatList( intf_thread_t *_p_intf, QWidget *_parent, bool sma
     CONNECT( buttonGroup, buttonClicked ( int ),
             this, switchPanel( int ) );
 
-    short icon_height = small ? ICON_HEIGHT /2 : ICON_HEIGHT;
+    short icon_height = b_small ? ICON_HEIGHT /2 : ICON_HEIGHT;
 
 #define ADD_CATEGORY( button, label, icon, numb )                           \
     QToolButton * button = new QToolButton( this );                         \
@@ -116,7 +116,7 @@ void SPrefsCatList::switchPanel( int i )
  * The Panels
  *********************************************************************/
 SPrefsPanel::SPrefsPanel( intf_thread_t *_p_intf, QWidget *_parent,
-                          int _number, bool small ) : QWidget( _parent ), p_intf( _p_intf )
+                          int _number, bool b_small ) : QWidget( _parent ), p_intf( _p_intf )
 {
     module_config_t *p_config;
     ConfigControl *control;
@@ -709,7 +709,7 @@ SPrefsPanel::SPrefsPanel( intf_thread_t *_p_intf, QWidget *_parent,
     panel_layout->addWidget( panel_label );
     panel_layout->addWidget( title_line );
 
-    if( small )
+    if( b_small )
     {
         QScrollArea *scroller= new QScrollArea;
         scroller->setWidget( panel );

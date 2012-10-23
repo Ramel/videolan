@@ -67,13 +67,13 @@ PrefsDialog::PrefsDialog( QWidget *parent, intf_thread_t *_p_intf )
     types->setAlignment( Qt::AlignHCenter );
     QHBoxLayout *types_l = new QHBoxLayout;
     types_l->setSpacing( 3 ); types_l->setMargin( 3 );
-    small = new QRadioButton( qtr( "Simple" ), types );
-    small->setToolTip( qtr( "Switch to simple preferences view" ) );
-    types_l->addWidget( small );
+    small_rb = new QRadioButton( qtr( "Simple" ), types );
+    small_rb->setToolTip( qtr( "Switch to simple preferences view" ) );
+    types_l->addWidget( small_rb );
     all = new QRadioButton( qtr("All"), types ); types_l->addWidget( all );
     all->setToolTip( qtr( "Switch to full preferences view" ) );
     types->setLayout( types_l );
-    small->setChecked( true );
+    small_rb->setChecked( true );
 
     /* Tree and panel initialisations */
     advanced_tree = NULL;
@@ -129,7 +129,7 @@ PrefsDialog::PrefsDialog( QWidget *parent, intf_thread_t *_p_intf )
     BUTTONACT( cancel, cancel() );
     BUTTONACT( reset, reset() );
 
-    BUTTONACT( small, setSmall() );
+    BUTTONACT( small_rb, setSmall() );
     BUTTONACT( all, setAdvanced() );
 
     resize( 780, sizeHint().height() );
@@ -224,7 +224,7 @@ void PrefsDialog::setSmall()
     }
 
     current_simple_panel->show();
-    small->setChecked( true );
+    small_rb->setChecked( true );
 }
 
 /* Switching from on simple panel to another */
@@ -300,7 +300,7 @@ void PrefsDialog::showModulePrefs( char *psz_module )
 /* Actual apply and save for the preferences */
 void PrefsDialog::save()
 {
-    if( small->isChecked() && simple_tree->isVisible() )
+    if( small_rb->isChecked() && simple_tree->isVisible() )
     {
         msg_Dbg( p_intf, "Saving the simple preferences" );
         for( int i = 0 ; i< SPrefsMax; i++ ){
